@@ -77,7 +77,7 @@ def plot_line_graphs(data: pd.DataFrame, mdbf_columns: list, pss4_columns: list,
         # create line graph 
         fig2, ax2 = plt.subplots(figsize=(7, 6), facecolor='white')
         ax2.plot(subset['STARTED'], subset['MDBF_Awake'], marker='o', label='MDBF', color='#005C6A', linewidth=2, markersize=8, alpha=0.8)
-        ax2.plot(subset['STARTED'], subset['PSS4_Stress'], marker='o', label='PSS4', color='#8A9A5B', linewidth=2, markersize=8, alpha=0.8)
+        ax2.plot(subset['STARTED'], subset['PSS4_Score'], marker='o', label='PSS4', color='#8A9A5B', linewidth=2, markersize=8, alpha=0.8)
         ax2.set_title(f'Befindlichkeit und Stresslevel für ID {unique_id}', fontsize=18, fontweight='bold')
         ax2.set_xlabel('Tag', fontsize=18)
         ax2.set_ylabel('Level', fontsize=18)
@@ -94,7 +94,7 @@ def plot_line_graphs(data: pd.DataFrame, mdbf_columns: list, pss4_columns: list,
         days_months = subset['STARTED'].dt.strftime('%d-%m')
         ax2.set_xticks(subset['STARTED'])
         ax2.set_xticklabels(days_months, rotation=45, ha='right')
-        
+
         plt.tight_layout(pad=3.0)
         
         # Save the line graph
