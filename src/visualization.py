@@ -63,41 +63,47 @@ def plot_line_graphs(data: pd.DataFrame, mdbf_columns: list, pss4_columns: list,
     
     # Unique IDs in the SERIAL column
     unique_ids = data['SERIAL'].unique()
+
+    ctr = 1
     
     for unique_id in unique_ids:
         # Filter data for the current ID
         subset = data[data['SERIAL'] == unique_id]
-        print("-----------------")
-        print (unique_id)
        
         # Ensure the subset has more than one row for plotting
         if subset.shape[0] <= 1:
             continue
-
-        print(subset['MDBF_Awake'])
-        print(subset['STARTED'])
     
         # create line graph 
         fig2, ax2 = plt.subplots(figsize=(7, 6), facecolor='white')
-        ax2.plot(subset['MDBF_Satisfied'], subset['MDBF_Awake'], marker='o', label='MDBF', color='#005C6A', linewidth=2, markersize=8, alpha=0.8)
-        #ax2.plot(subset['STARTED'], subset['PSS4_Stress'], marker='o', label='PSS4', color='#8A9A5B', linewidth=2, markersize=8, alpha=0.8)
-        ax2.set_title(f'MDBF and PSS4 for ID {unique_id}', fontsize=18, fontweight='bold')
-        ax2.set_xlabel('Date', fontsize=18)
+        ax2.plot(subset['STARTED'], subset['MDBF_Awake'], marker='o', label='MDBF', color='#005C6A', linewidth=2, markersize=8, alpha=0.8)
+        ax2.plot(subset['STARTED'], subset['PSS4_Stress'], marker='o', label='PSS4', color='#8A9A5B', linewidth=2, markersize=8, alpha=0.8)
+        ax2.set_title(f'Befindlichkeit und Stresslevel für ID {unique_id}', fontsize=18, fontweight='bold')
+        ax2.set_xlabel('Tag', fontsize=18)
         ax2.set_ylabel('Level', fontsize=18)
         ax2.tick_params(axis='x', labelsize=16)
         ax2.tick_params(axis='y', labelsize=16)
         ax2.legend(fontsize=18)
         ax2.grid(True, linestyle='--', alpha=0.6)
-        ax2.fill_between(subset['STARTED'], subset[mdbf_columns].mean(axis=1), subset[pss4_columns].mean(axis=1), color='grey', alpha=0.1)
+        #ax2.fill_between(subset['STARTED'], subset[mdbf_columns].mean(axis=1), subset[pss4_columns].mean(axis=1), color='grey', alpha=0.1)
         ax2.spines['top'].set_visible(False)
         ax2.spines['right'].set_visible(False)
         ax2.yaxis.set_ticks([])
+
+        # Customize x-axis labels to show only the day
+        days_months = subset['STARTED'].dt.strftime('%d-%m')
+        ax2.set_xticks(subset['STARTED'])
+        ax2.set_xticklabels(days_months, rotation=45, ha='right')
+        
         plt.tight_layout(pad=3.0)
         
         # Save the line graph
         file_path = os.path.join(output_dir, f'line_graph_{unique_id}.png')
         fig2.savefig(file_path, facecolor='white')
         plt.close(fig2) 
+
+        if ctr == 1:
+            break
 
 def create_visualizations(data: pd.DataFrame, mdbf_columns: list, pss4_columns: list, topics_columns: list, output_dir: str):
     """
