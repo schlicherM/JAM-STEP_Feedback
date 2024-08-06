@@ -43,10 +43,10 @@ def main():
     pss4_columns = [col for col in processed_data.columns if 'PSS4' in col]
 
     # Evaluate questionnaires
-    data_with_eval = evaluation(processed_data, mdbf_columns, pss4_columns)
+    data_with_eval = evaluation(data=processed_data, mdbf_columns=mdbf_columns, pss4_columns=pss4_columns)
 
     # Plot graphs for each unique ID
-    create_visualizations(data_with_eval, topics_columns, mdbf_columns, pss4_columns, output_dir)
+    create_visualizations(data=data_with_eval, mdbf_columns=mdbf_columns, topics_columns=topics_columns, pss4_columns=pss4_columns, output_dir=output_dir)
 
     # Generate a PDF report
     # create_pdf(output_dir)

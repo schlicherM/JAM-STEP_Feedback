@@ -21,6 +21,8 @@ def plot_pie_charts(data: pd.DataFrame, topics_columns: list, output_dir: str):
         
         # Aggregate the data for topics with value 2
         topics_data = subset[topics_columns].eq(2).sum()
+        print(topics_columns)
+        print("----------------")
         
         # Only keep topics with value 2
         selected_topics = topics_data[topics_data > 0]
