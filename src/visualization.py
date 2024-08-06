@@ -21,8 +21,6 @@ def plot_pie_charts(data: pd.DataFrame, topics_columns: list, output_dir: str):
         
         # Aggregate the data for topics with value 2
         topics_data = subset[topics_columns].eq(2).sum()
-        print(topics_columns)
-        print("----------------")
         
         # Only keep topics with value 2
         selected_topics = topics_data[topics_data > 0]
@@ -76,9 +74,10 @@ def plot_line_graphs(data: pd.DataFrame, mdbf_columns: list, pss4_columns: list,
         if subset.shape[0] <= 1:
             continue
     
+        print(subset['PSS4_Score'])
         # create line graph 
         fig2, ax2 = plt.subplots(figsize=(7, 6), facecolor='white')
-        ax2.plot(subset['STARTED'], subset['MDBF_Awake'], marker='o', label='MDBF', color='#005C6A', linewidth=2, markersize=8, alpha=0.8)
+        ax2.plot(subset['STARTED'], subset['MDBF_Score'], marker='o', label='MDBF', color='#005C6A', linewidth=2, markersize=8, alpha=0.8)
         ax2.plot(subset['STARTED'], subset['PSS4_Score'], marker='o', label='PSS4', color='#8A9A5B', linewidth=2, markersize=8, alpha=0.8)
         ax2.set_title(f'Befindlichkeit und Stresslevel für ID {unique_id}', fontsize=18, fontweight='bold')
         ax2.set_xlabel('Tag', fontsize=18)
