@@ -46,6 +46,6 @@ def preprocess_data(data: pd.DataFrame) -> pd.DataFrame:
     data['QUESTNNR'] = data['QUESTNNR'].astype(str)
     data['MODE'] = data['MODE'].astype(str)
 
-    print(data.dtypes)
+    #print(data.dtypes)
 
     return data

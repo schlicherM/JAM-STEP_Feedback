@@ -32,7 +32,7 @@ def main():
     print("Data loaded and processed successfully!")
     pd.set_option('display.max_columns', None)  # Show all columns
     pd.set_option('display.max_rows', 10)       
-    print(processed_data.head())  
+    #print(processed_data.head())  
 
 
     # Plot pie charts for each unique ID
