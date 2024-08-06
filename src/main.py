@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 from data_loader import load_data
+from preprocessing import preprocess_data
 
 def main():
     # Set file paths
@@ -15,14 +16,23 @@ def main():
     try:
         data = load_data(input_data_path)
 
-        # Set display options to show all columns and print head
-        pd.set_option('display.max_columns', None)  # Show all columns
-        pd.set_option('display.max_rows', 10)       # Show only the first 10 rows
-        print("First few rows of the dataset:")
-        print(data.head())  # Use data.head() to get the first few rows
-
     except Exception as e:
         print(e)
+
+
+    # Process the data using the preprocessing module
+    try:
+        processed_data = preprocess_data(data)
+    except Exception as e:
+        print(f"Error during preprocessing: {e}")
+        return
+
+    #print head of processed data
+    print("Data loaded and processed successfully!")
+    pd.set_option('display.max_columns', None)  # Show all columns
+    pd.set_option('display.max_rows', 10)       
+    print(processed_data.head())  
+
 
 if __name__ == '__main__':
     main()

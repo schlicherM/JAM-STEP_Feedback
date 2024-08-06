@@ -18,11 +18,12 @@ def load_data(filepath: str) -> pd.DataFrame:
         data = pd.read_csv(
             filepath,
             encoding='ISO-8859-1',  
-            delimiter=',',          
+            delimiter=';',          
             decimal='.',            
-            quotechar='"',          
-            header=0,               # First row contains column names
-            na_values=['']          # Specify additional NA values 
+            quotechar='"',   
+            parse_dates=['STARTED'],       
+            header=0,   # First row contains column names          
+            na_values=['']
         )
 
         # Convert the 'STARTED' column to datetime with a specified format
