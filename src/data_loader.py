@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+from datetime import datetime
 
 def load_data(filepath: str) -> pd.DataFrame:
     """
@@ -15,19 +16,18 @@ def load_data(filepath: str) -> pd.DataFrame:
         raise FileNotFoundError(f"The file at {filepath} was not found.")
 
     try:
+        dateparser = lambda x: datetime.strptime(x, '%d.%m.%Y %H:%M')
         data = pd.read_csv(
             filepath,
             encoding='ISO-8859-1',  
             delimiter=';',          
             decimal='.',            
             quotechar='"',   
-            parse_dates=['STARTED'],       
+            parse_dates=['STARTED'], 
+            date_parser=dateparser,      
             header=0,   # First row contains column names          
             na_values=['']
         )
-
-        # Convert the 'STARTED' column to datetime with a specified format
-        data['STARTED'] = pd.to_datetime(data['STARTED'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
 
         return data
     except Exception as e:
