@@ -202,12 +202,12 @@ def create_diverging_bar_chart(data: pd.DataFrame, topics_columns: list, output_
             ax.set_xticks(subset['STARTED'])
             ax.set_xticklabels(days_months, rotation=45, ha='right')
             ax.set_title(f'{topic.split("_")[1]}', fontsize=14, fontweight='bold')
-        fig.legend(['Topic used', 'Topic not used'], fontsize=12)
+        fig.legend(['Topic erwähnt', 'Topic nicht erwähnt'], fontsize=12)
         plt.tight_layout(pad=3.0)
         plt.subplots_adjust(top=0.9)
 
         # Save the diverging bar chart
-        file_path = os.path.join(output_dir, f'diverging_bar_chart_{unique_id}.png')
+        file_path = os.path.join(output_dir, f'diverging_barchart_{unique_id}.png')
         plt.savefig(file_path, facecolor='white')
         plt.close()
 
