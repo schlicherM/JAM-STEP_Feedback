@@ -74,22 +74,23 @@ def plot_line_graphs(data: pd.DataFrame, mdbf_columns: list, pss4_columns: list,
         if subset.shape[0] <= 1:
             continue
     
-        print(subset['PSS4_Score'])
         # create line graph 
-        fig2, ax2 = plt.subplots(figsize=(7, 6), facecolor='white')
-        ax2.plot(subset['STARTED'], subset['MDBF_Score'], marker='o', label='MDBF', color='#005C6A', linewidth=2, markersize=8, alpha=0.8)
-        ax2.plot(subset['STARTED'], subset['PSS4_Score'], marker='o', label='PSS4', color='#8A9A5B', linewidth=2, markersize=8, alpha=0.8)
+        fig2, ax2 = plt.subplots(figsize=(9, 6), facecolor='white')
+        ax2.plot(subset['STARTED'], subset['MDBF_Valence_Score'], marker='o', label='Gut-Schlechte \n Stimmung', color='#005C6A', linewidth=2, markersize=8, alpha=0.8) # -2 to generate zero centering
+        ax2.plot(subset['STARTED'], subset['MDBF_Arousal_Score'], marker='o', label='Wachheit-Müdigkeit', color='#608E63', linewidth=2, markersize=8, alpha=0.8)
+        ax2.plot(subset['STARTED'], subset['MDBF_Calmness_Score'], marker='o', label='Ruhe-Unruhe', color='#3D7E6A', linewidth=2, markersize=8, alpha=0.8)
+        ax2.plot(subset['STARTED'], subset['PSS4_Score'], marker='o', label='Stresslevel', color='#8A9A5B', linewidth=2, markersize=8, alpha=0.8)
         ax2.set_title(f'Befindlichkeit und Stresslevel für ID {unique_id}', fontsize=18, fontweight='bold')
         ax2.set_xlabel('Tag', fontsize=18)
         ax2.set_ylabel('Level', fontsize=18)
         ax2.tick_params(axis='x', labelsize=16)
         ax2.tick_params(axis='y', labelsize=16)
-        ax2.legend(fontsize=18)
+        ax2.legend(fontsize=16, loc='center left', bbox_to_anchor=(1, 0.5))
         ax2.grid(True, linestyle='--', alpha=0.6)
         #ax2.fill_between(subset['STARTED'], subset[mdbf_columns].mean(axis=1), subset[pss4_columns].mean(axis=1), color='grey', alpha=0.1)
         ax2.spines['top'].set_visible(False)
         ax2.spines['right'].set_visible(False)
-        ax2.yaxis.set_ticks([])
+   
 
         # Customize x-axis labels to show only the day
         days_months = subset['STARTED'].dt.strftime('%d-%m')
