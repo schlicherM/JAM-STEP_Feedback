@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 def plot_pie_charts(data: pd.DataFrame, topics_columns: list, output_dir: str):
     """
@@ -63,8 +64,6 @@ def plot_line_graphs(data: pd.DataFrame, mdbf_columns: list, pss4_columns: list,
     
     # Unique IDs in the SERIAL column
     unique_ids = data['SERIAL'].unique()
-
-    ctr = 1
     
     for unique_id in unique_ids:
         # Filter data for the current ID
@@ -76,12 +75,12 @@ def plot_line_graphs(data: pd.DataFrame, mdbf_columns: list, pss4_columns: list,
     
         # create line graph 
         fig2, ax2 = plt.subplots(figsize=(9, 6), facecolor='white')
-        ax2.plot(subset['STARTED'], subset['MDBF_Valence_Score'], marker='o', label='Gut-Schlechte \n Stimmung', color='#005C6A', linewidth=2, markersize=8, alpha=0.8) # -2 to generate zero centering
+        ax2.plot(subset['STARTED'], subset['MDBF_Valence_Score'], marker='o', label='Gut-Schlechte\nStimmung', color='#005C6A', linewidth=2, markersize=8, alpha=0.8) # -2 to generate zero centering
         ax2.plot(subset['STARTED'], subset['MDBF_Arousal_Score'], marker='o', label='Wachheit-Müdigkeit', color='#608E63', linewidth=2, markersize=8, alpha=0.8)
         ax2.plot(subset['STARTED'], subset['MDBF_Calmness_Score'], marker='o', label='Ruhe-Unruhe', color='#3D7E6A', linewidth=2, markersize=8, alpha=0.8)
         ax2.plot(subset['STARTED'], subset['PSS4_Score'], marker='o', label='Stresslevel', color='#8A9A5B', linewidth=2, markersize=8, alpha=0.8)
         ax2.set_title(f'Befindlichkeit und Stresslevel für ID {unique_id}', fontsize=18, fontweight='bold')
-        ax2.set_xlabel('Tag', fontsize=18)
+        ax2.set_xlabel('Datum', fontsize=18)
         ax2.set_ylabel('Level', fontsize=18)
         ax2.tick_params(axis='x', labelsize=16)
         ax2.tick_params(axis='y', labelsize=16)
@@ -104,8 +103,58 @@ def plot_line_graphs(data: pd.DataFrame, mdbf_columns: list, pss4_columns: list,
         fig2.savefig(file_path, facecolor='white')
         plt.close(fig2) 
 
-        if ctr == 1:
-            break
+        break
+
+def create_heatmap(data: pd.DataFrame, output_dir: str):
+    """
+    Creates and saves a heatmap for the MDBF values over time.
+    
+    Parameters:
+    - data (pd.DataFrame): The input DataFrame containing the data.
+    - output_dir (str): Directory where the heatmap will be saved.
+    """
+
+    # Unique IDs in the SERIAL column
+    unique_ids = data['SERIAL'].unique()
+    
+    for unique_id in unique_ids:
+        # Filter data for the current ID
+        subset = data[data['SERIAL'] == unique_id]
+       
+        # Ensure the subset has more than one row for plotting
+        if subset.shape[0] <= 1:
+            continue
+    
+
+        # Pivot the data so that each SERIAl becomes the columns and the three MDBF values become the rows
+        pivot_data = subset.pivot(index='STARTED', columns='SERIAL', values=['MDBF_Valence_Score', 'MDBF_Arousal_Score', 'MDBF_Calmness_Score'])
+
+        # Sort by date
+        pivot_data = pivot_data.sort_index()
+
+        # Create the heatmap
+        plt.figure(figsize=(12, 6))
+        sns.heatmap(pivot_data.T, cmap='RdYlGn', cbar_kws={'label': 'Wert'}, annot=True, fmt=".1f")
+
+        # Set the title and labels
+        plt.title(f'Befindlichkeit für ID {unique_id}', fontsize=18)
+        plt.xlabel('Datum', fontsize=14)
+        plt.ylabel('Befindlichkeitswerte', fontsize=14)
+        days_months = subset['STARTED'].dt.strftime('%d-%m')
+        plt.xticks(ticks=range(len(days_months)), labels=days_months, rotation=45, ha='right')
+        y_ticks = ['Gute-Schlechte\nStimmung', 'Wachheit-Müdigkeit', 'Ruhe-Unruhe']
+        plt.yticks(ticks=range(len(y_ticks)), labels=y_ticks, rotation=0)
+
+
+        plt.tight_layout()
+
+        # Save the heatmap
+        file_path = os.path.join(output_dir, f'heatmap_{unique_id}.png')
+        plt.savefig(file_path)
+        plt.close()
+
+        break
+
 
 def create_visualizations(data: pd.DataFrame, mdbf_columns: list, pss4_columns: list, topics_columns: list, output_dir: str):
     """
@@ -123,5 +172,6 @@ def create_visualizations(data: pd.DataFrame, mdbf_columns: list, pss4_columns: 
     # Ensure the output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
-    plot_pie_charts(data, topics_columns, output_dir)
-    plot_line_graphs(data, mdbf_columns, pss4_columns, output_dir)
+    #plot_pie_charts(data, topics_columns, output_dir)
+    #plot_line_graphs(data, mdbf_columns, pss4_columns, output_dir)
+    create_heatmap(data, output_dir)
