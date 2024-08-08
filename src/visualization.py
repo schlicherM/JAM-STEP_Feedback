@@ -21,8 +21,7 @@ def plot_pie_charts(data: pd.DataFrame, topics_columns: list, output_dir: str):
         subset = data[data['SERIAL'] == unique_id]
         
         # Aggregate the data for topics with value 2
-        filtered_columns = [col for col in topics_columns if col != 'Topics_None']
-        topics_data = data[filtered_columns].eq(2).sum()
+        topics_data = data[topics_columns].eq(2).sum()
 
         # Only keep topics with value 2
         selected_topics = topics_data[topics_data > 0]
@@ -53,14 +52,14 @@ def plot_pie_charts(data: pd.DataFrame, topics_columns: list, output_dir: str):
         fig1.savefig(file_path, facecolor='white')
         plt.close(fig1)  
 
-def plot_line_graphs(data: pd.DataFrame, mdbf_columns: list, pss4_columns: list, output_dir: str):
+        break
+
+def plot_line_graphs(data: pd.DataFrame, output_dir: str):
     """
     Creates line graphs for each unique ID in the 'SERIAL' column, showing average values for MDBF and PSS4 columns.
     
     Parameters:
     - data (pd.DataFrame): The input DataFrame containing the data.
-    - mdbf_columns (list): List of column names related to MDBF.
-    - pss4_columns (list): List of column names related to PSS4.
     - output_dir (str): Directory where the line graphs will be saved.
     """
     
@@ -88,7 +87,6 @@ def plot_line_graphs(data: pd.DataFrame, mdbf_columns: list, pss4_columns: list,
         ax2.tick_params(axis='y', labelsize=16)
         ax2.legend(fontsize=16, loc='center left', bbox_to_anchor=(1, 0.5))
         ax2.grid(True, linestyle='--', alpha=0.6)
-        #ax2.fill_between(subset['STARTED'], subset[mdbf_columns].mean(axis=1), subset[pss4_columns].mean(axis=1), color='grey', alpha=0.1)
         ax2.spines['top'].set_visible(False)
         ax2.spines['right'].set_visible(False)
    
@@ -157,8 +155,66 @@ def create_heatmap(data: pd.DataFrame, output_dir: str):
 
         break
 
+def create_diverging_bar_chart(data: pd.DataFrame, topics_columns: list, output_dir: str):
+    """
+    Creates and saves a diverging bar chart of the MDBF Valence score for the four most mentioned topics.
+    
+    Parameters:
+    - data (pd.DataFrame): The input DataFrame containing the data.
+    - topics_columns (list): List of column names related to topics.
+    - output_dir (str): Directory where the diverging bar chart will be saved.
+    """
+    # Unique IDs in the SERIAL column
+    unique_ids = data['SERIAL'].unique()
+    
+    for unique_id in unique_ids:
+        # Filter data for the current ID
+        subset = data[data['SERIAL'] == unique_id]
+        # Get the four most mentioned topics
+        # TODO: what if several topics have same count?
+        topics_data = subset[topics_columns].eq(2).sum()
+        top_topics = topics_data.sort_values(ascending=False).head(4).index
 
-def create_visualizations(data: pd.DataFrame, mdbf_columns: list, pss4_columns: list, topics_columns: list, output_dir: str):
+
+        # Filter the data for the top topics
+        subset = subset[['STARTED', 'MDBF_Valence_Score'] + list(top_topics)]
+
+        color_positive = '#1f77b4'  # if topic was used
+        color_negative = '#A9A9A9'  
+        
+
+        # create four subplots with barchart for every topic in top_topics, if the value is 2 plot the Valence score, else use zero
+        fig, axs = plt.subplots(2, 2, figsize=(12, 8), facecolor='white')
+        fig.suptitle(f'Gute-Schlechte Stimmung für die 4 häufigsten Topics für ID {unique_id}', fontsize=18, fontweight='bold')
+        for i, topic in enumerate(top_topics):
+            row = i // 2
+            col = i % 2
+            ax = axs[row, col]
+            colors = [color_positive if value == 2 else color_negative for value in subset[topic]]
+            ax.bar(subset['STARTED'], subset['MDBF_Valence_Score'] , color=colors, edgecolor='black')
+            ax.set_xlabel('Datum', fontsize=12)
+            ax.set_ylabel('Stimmung', fontsize=12)
+            ax.tick_params(axis='x', labelsize=10)
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.grid(True, linestyle='--', alpha=0.6)
+            days_months = subset['STARTED'].dt.strftime('%d-%m')
+            ax.set_xticks(subset['STARTED'])
+            ax.set_xticklabels(days_months, rotation=45, ha='right')
+            ax.set_title(f'{topic.split("_")[1]}', fontsize=14, fontweight='bold')
+        fig.legend(['Topic used', 'Topic not used'], fontsize=12)
+        plt.tight_layout(pad=3.0)
+        plt.subplots_adjust(top=0.9)
+
+        # Save the diverging bar chart
+        file_path = os.path.join(output_dir, f'diverging_bar_chart_{unique_id}.png')
+        plt.savefig(file_path, facecolor='white')
+        plt.close()
+
+        break
+
+
+def create_visualizations(data: pd.DataFrame, topics_columns: list, output_dir: str):
     """
     Creates all plots for the individual participants
     - pie charts 
@@ -166,14 +222,14 @@ def create_visualizations(data: pd.DataFrame, mdbf_columns: list, pss4_columns: 
     
     Parameters:
     - data (pd.DataFrame): The input DataFrame containing the data.
-    - mdbf_columns (list): List of column names related to MDBF.
-    - pss4_columns (list): List of column names related to PSS-4.
+    - topics_columns (list): List of column names related to topics.
     - output_dir (str): Directory where the plots will be saved.
     """
 
     # Ensure the output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
-    plot_pie_charts(data, topics_columns, output_dir)
-    #plot_line_graphs(data, mdbf_columns, pss4_columns, output_dir)
+    #plot_pie_charts(data, topics_columns, output_dir)
+    #plot_line_graphs(data, output_dir)
     #create_heatmap(data, output_dir)
+    create_diverging_bar_chart(data, topics_columns, output_dir)

@@ -38,7 +38,8 @@ def main():
 
 
     # list of columns for each questionnaire
-    topics_columns = [col for col in processed_data.columns if 'Topics' in col]
+    all_topics_columns = [col for col in processed_data.columns if 'Topics' in col]
+    topics_columns = [col for col in all_topics_columns if col != 'Topics_None']
     mdbf_columns = [col for col in processed_data.columns if 'MDBF' in col]
     pss4_columns = [col for col in processed_data.columns if 'PSS4' in col]
 
@@ -46,10 +47,10 @@ def main():
     data_with_eval = evaluation(data=processed_data, mdbf_columns=mdbf_columns, pss4_columns=pss4_columns)
 
     # Plot graphs for each unique ID
-    create_visualizations(data=data_with_eval, mdbf_columns=mdbf_columns, topics_columns=topics_columns, pss4_columns=pss4_columns, output_dir=output_dir)
+    create_visualizations(data=data_with_eval, topics_columns=topics_columns, output_dir=output_dir)
 
     # Generate a PDF report
-    # create_pdf(output_dir)
+    #create_pdf(output_dir)
 
 if __name__ == '__main__':
     main()
