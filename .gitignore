@@ -4,7 +4,8 @@ __pycache__/
 *$py.class
 
 # data
-/data/data.csv
+/data
+/outputs
 
 # C extensions
 *.so
