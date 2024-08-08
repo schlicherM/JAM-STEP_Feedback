@@ -21,8 +21,9 @@ def plot_pie_charts(data: pd.DataFrame, topics_columns: list, output_dir: str):
         subset = data[data['SERIAL'] == unique_id]
         
         # Aggregate the data for topics with value 2
-        topics_data = subset[topics_columns].eq(2).sum()
-        
+        filtered_columns = [col for col in topics_columns if col != 'Topics_None']
+        topics_data = data[filtered_columns].eq(2).sum()
+
         # Only keep topics with value 2
         selected_topics = topics_data[topics_data > 0]
         
@@ -31,8 +32,9 @@ def plot_pie_charts(data: pd.DataFrame, topics_columns: list, output_dir: str):
             continue
         
         # Prepare data for pie chart
-        partitions = selected_topics.values
-        topics = selected_topics.index
+        partitions = selected_topics.values 
+        # use topics as labels but remove 'Topics_' from the column names
+        topics = [col.split('_')[1] for col in selected_topics.index]
         colors_pie = plt.cm.tab20.colors  # Use a colormap for pie chart colors
         
         # Create pie chart
@@ -172,6 +174,6 @@ def create_visualizations(data: pd.DataFrame, mdbf_columns: list, pss4_columns: 
     # Ensure the output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
-    #plot_pie_charts(data, topics_columns, output_dir)
+    plot_pie_charts(data, topics_columns, output_dir)
     #plot_line_graphs(data, mdbf_columns, pss4_columns, output_dir)
-    create_heatmap(data, output_dir)
+    #create_heatmap(data, output_dir)
