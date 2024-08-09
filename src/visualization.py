@@ -2,10 +2,11 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import networkx as nx
 
 def plot_pie_charts(data: pd.DataFrame, topics_columns: list, output_dir: str):
     """
-    Creates pie charts for each unique ID in the 'SERIAL' column, only displaying topics that were selected (value 2).
+    Creates pie charts for each participant, only displaying topics that were selected (value 2).
     
     Parameters:
     - data (pd.DataFrame): The input DataFrame containing the data.
@@ -56,7 +57,7 @@ def plot_pie_charts(data: pd.DataFrame, topics_columns: list, output_dir: str):
 
 def plot_line_graphs(data: pd.DataFrame, output_dir: str):
     """
-    Creates line graphs for each unique ID in the 'SERIAL' column, showing average values for MDBF and PSS4 columns.
+    Creates line graphs for each participant, showing average values for MDBF and PSS4 columns.
     
     Parameters:
     - data (pd.DataFrame): The input DataFrame containing the data.
@@ -107,7 +108,7 @@ def plot_line_graphs(data: pd.DataFrame, output_dir: str):
 
 def create_heatmap(data: pd.DataFrame, output_dir: str):
     """
-    Creates and saves a heatmap for the MDBF values over time.
+    Creates and saves a heatmap for the MDBF values over time for every participant.
     
     Parameters:
     - data (pd.DataFrame): The input DataFrame containing the data.
@@ -157,7 +158,7 @@ def create_heatmap(data: pd.DataFrame, output_dir: str):
 
 def create_diverging_bar_chart(data: pd.DataFrame, topics_columns: list, output_dir: str):
     """
-    Creates and saves a diverging bar chart of the MDBF Valence score for the four most mentioned topics.
+    Creates and saves a diverging bar chart of the MDBF Valence score for the four most mentioned topics for every participant.
     
     Parameters:
     - data (pd.DataFrame): The input DataFrame containing the data.
@@ -213,6 +214,105 @@ def create_diverging_bar_chart(data: pd.DataFrame, topics_columns: list, output_
 
         break
 
+def calculate_mean_mdbf_scores(data: pd.DataFrame, topics_columns: list):
+    """
+    Calculates the mean MDBF scores for each topic.
+    
+    Parameters:
+    - data (pd.DataFrame): The input DataFrame containing the data from one individual participant.
+    - topics_columns (list): List of column names related to topics.
+    
+    Returns:
+    - mean_scores (dict): Dictionary with topics as keys and a tuple of mean MDBF scores as values.
+
+    """
+    # calculate the mean scores for each topic for all MDBF scores  
+    mean_scores = {}
+
+    # Iterate through each topic
+    for topic in topics_columns:
+        # Filter the rows where the topic are mentioned
+        topic_filtered_data = data[data[topic] == 2]
+        
+        # Calculate the mean scores for the MDBF columns
+        if not topic_filtered_data.empty:
+            mean_valence = topic_filtered_data['MDBF_Valence_Score'].mean()
+            mean_arousal = topic_filtered_data['MDBF_Arousal_Score'].mean()
+            mean_calmness = topic_filtered_data['MDBF_Calmness_Score'].mean()
+            
+            # Store the results in the dictionary
+            mean_scores[topic] = (mean_valence, mean_arousal, mean_calmness)
+        else:
+            # If topic was not mentioned, store NaN values
+            mean_scores[topic] = (float('nan'), float('nan'), float('nan'))
+
+    return mean_scores
+
+def plot_forcegraph(data: pd.DataFrame, topics_columns: list, output_dir: str):
+    """
+    Creates and saves a force-directed graph showing the relationships between topics und MDBF values for every participant.
+    
+    Parameters:
+    - data (pd.DataFrame): The input DataFrame containing the data.
+    - topics_columns (list): List of column names related to topics.
+    - output_dir (str): Directory where the force-directed graph will be saved.
+    """
+    unique_ids = data['SERIAL'].unique()
+    
+    for unique_id in unique_ids:
+        subset = data[data['SERIAL'] == unique_id]
+
+        mean_scores = calculate_mean_mdbf_scores(subset, topics_columns)
+    
+        G = nx.Graph()
+        
+        # Add nodes for MDBF scores
+        G.add_node('Gute Stimmung', color='lightcoral', size=4000)
+        G.add_node('Wachheit', color='lightgreen', size=4000)
+        G.add_node('Ruhe', color='lightblue', size=4000)
+        
+        # Add nodes and edges for each topic
+        for topic in topics_columns:
+            
+            # Get the mean scores for this topic
+            mean_valence, mean_arousal, mean_calmness = mean_scores[topic]
+
+            # Check if any of the scores for this topic are non-NaN
+            if pd.notna(mean_valence) or pd.notna(mean_arousal) or pd.notna(mean_calmness):
+                # add topic node but remove 'Topics_' from the column names
+                G.add_node(topic.split('_')[1], color='lightgray', size=2000)
+            
+                # Add edges between the topic and the MDBF scores
+                if pd.notna(mean_valence):
+                    G.add_edge('Gute Stimmung', topic.split('_')[1], weight=mean_valence)
+                if pd.notna(mean_arousal):
+                    G.add_edge('Wachheit', topic.split('_')[1], weight=mean_arousal)
+                if pd.notna(mean_calmness):
+                    G.add_edge('Ruhe', topic.split('_')[1], weight=mean_calmness)
+
+        # Draw the graph using NetworkX's spring layout (force-directed)
+        pos = nx.spring_layout(G, k=0.5, iterations=50)
+        
+        # Draw the graph
+        plt.figure(figsize=(10, 8))
+        node_colors = [G.nodes[node]['color'] for node in G.nodes()]
+        node_sizes = [G.nodes[node]['size'] for node in G.nodes()]
+        
+        # Normalize edge weights for better visualization
+        edge_weights = [G[u][v]['weight'] for u, v in G.edges()]
+       
+        nx.draw(
+            G, pos, with_labels=True, node_color=node_colors, node_size=node_sizes,
+            font_size=12, width=edge_weights, edge_color='gray', edge_cmap=plt.cm.Blues
+        )
+        
+        # Save the graph
+        plt.title(f"Topic und Befindlichkeits-Graph für ID {unique_id}")
+        file_path = os.path.join(output_dir, f'forcegraph_{unique_id}.png')
+        plt.savefig(file_path)
+        plt.close()
+
+        break
 
 def create_visualizations(data: pd.DataFrame, topics_columns: list, output_dir: str):
     """
@@ -232,4 +332,5 @@ def create_visualizations(data: pd.DataFrame, topics_columns: list, output_dir: 
     #plot_pie_charts(data, topics_columns, output_dir)
     #plot_line_graphs(data, output_dir)
     #create_heatmap(data, output_dir)
-    create_diverging_bar_chart(data, topics_columns, output_dir)
+    #create_diverging_bar_chart(data, topics_columns, output_dir)
+    plot_forcegraph(data, topics_columns, output_dir)
