@@ -36,12 +36,16 @@ def plot_pie_charts(data: pd.DataFrame, topics_columns: list, output_dir: str):
         partitions = selected_topics.values 
         # use topics as labels but remove 'Topics_' from the column names
         topics = [col.split('_')[1] for col in selected_topics.index]
-        colors_pie = plt.cm.tab20.colors  # Use a colormap for pie chart colors
+        # use seaborn color palette
+        colors_pie = sns.color_palette('tab20') 
+
+        #hex_codes = colors_pie.as_hex()
+        #print(hex_codes)
         
         # Create pie chart
         fig1, ax1 = plt.subplots(figsize=(7, 6), facecolor='white')
         wedges, texts, autotexts = ax1.pie(partitions, labels=topics, autopct='%1.0f%%', startangle=140, shadow=True, colors=colors_pie)
-        ax1.set_title(f'Topics Distribution for ID {unique_id}', fontsize=18, fontweight='bold')
+        ax1.set_title(f'Verteilung der erwähnten Themen', fontsize=18, fontweight='bold')
         for text in texts:
             text.set_fontsize(18)
         for autotext in autotexts:
@@ -80,7 +84,7 @@ def plot_line_graphs(data: pd.DataFrame, output_dir: str):
         fig2, axes = plt.subplots(2, 2, figsize=(12, 10), facecolor='white')
         
         # Plot each score in a separate subplot
-        axes[0, 0].plot(subset['STARTED'], subset['MDBF_Valence_Score'], marker='o', color='#005C6A', linewidth=2, markersize=8, alpha=0.8)
+        axes[0, 0].plot(subset['STARTED'], subset['MDBF_Valence_Score'], marker='o', color='#1f77b4', linewidth=2, markersize=8, alpha=0.8)
         axes[0, 0].axhline(4, color='black', linewidth=1)
         axes[0, 0].set_title('Gut-Schlechte Stimmung', fontsize=14)
         axes[0, 0].set_xlabel('Wochentag', fontsize=12)
@@ -89,7 +93,7 @@ def plot_line_graphs(data: pd.DataFrame, output_dir: str):
         axes[0, 0].spines['bottom'].set_visible(False)
         axes[0, 0].grid(True, linestyle='--', alpha=0.6)
         
-        axes[0, 1].plot(subset['STARTED'], subset['MDBF_Arousal_Score'], marker='o', color='#608E63', linewidth=2, markersize=8, alpha=0.8)
+        axes[0, 1].plot(subset['STARTED'], subset['MDBF_Arousal_Score'], marker='o', color='#aec7e8', linewidth=2, markersize=8, alpha=0.8)
         axes[0, 1].axhline(4, color='black', linewidth=1)
         axes[0, 1].set_title('Wachheit-Müdigkeit', fontsize=14)
         axes[0, 1].set_xlabel('Wochentag', fontsize=12)
@@ -98,7 +102,7 @@ def plot_line_graphs(data: pd.DataFrame, output_dir: str):
         axes[0, 1].spines['bottom'].set_visible(False)
         axes[0, 1].grid(True, linestyle='--', alpha=0.6)
         
-        axes[1, 0].plot(subset['STARTED'], subset['MDBF_Calmness_Score'], marker='o', color='#3D7E6A', linewidth=2, markersize=8, alpha=0.8)
+        axes[1, 0].plot(subset['STARTED'], subset['MDBF_Calmness_Score'], marker='o', color='#ff7f0e', linewidth=2, markersize=8, alpha=0.8)
         axes[1, 0].axhline(4, color='black', linewidth=1)
         axes[1, 0].set_title('Ruhe-Unruhe', fontsize=14)
         axes[1, 0].set_xlabel('Wochentag', fontsize=12)
@@ -107,7 +111,7 @@ def plot_line_graphs(data: pd.DataFrame, output_dir: str):
         axes[1, 0].spines['bottom'].set_visible(False)
         axes[1, 0].grid(True, linestyle='--', alpha=0.6)
         
-        axes[1, 1].plot(subset['STARTED'], subset['PSS4_Score'], marker='o', color='#8A9A5B', linewidth=2, markersize=8, alpha=0.8)
+        axes[1, 1].plot(subset['STARTED'], subset['PSS4_Score'], marker='o', color='#ffbb78', linewidth=2, markersize=8, alpha=0.8)
         axes[1, 1].set_title('Stresslevel', fontsize=14)
         axes[1, 1].set_xlabel('Wochentag', fontsize=12)
         axes[1, 1].set_ylabel('Level', fontsize=12)
@@ -184,7 +188,7 @@ def create_heatmap(data: pd.DataFrame, output_dir: str):
         # Add text next to the color bar to explain the extremas
         cbar = plt.gcf().axes[-1]  # Get the color bar axis
         cbar.text(2.8, 0.04, 'Schlecht Stimmung\nMüdigkeit\nUnruhe', ha='left', va='center', transform=cbar.transAxes, fontsize=12)
-        cbar.text(2.8, 0.96, 'Gute Stimmung\nWachheit\nUnruhe', ha='left', va='center', transform=cbar.transAxes, fontsize=12)
+        cbar.text(2.8, 0.96, 'Gute Stimmung\nWachheit\nRuhe', ha='left', va='center', transform=cbar.transAxes, fontsize=12)
 
         plt.tight_layout()
 
@@ -219,8 +223,8 @@ def create_diverging_bar_chart(data: pd.DataFrame, topics_columns: list, output_
         # Filter the data for the top topics
         subset = subset[['STARTED', 'MDBF_Valence_Score'] + list(top_topics)]
 
-        color_positive = '#1f77b4'  # if topic was used
-        color_negative = '#A9A9A9'  
+        color_positive = '#ff7f0e'  # if topic was used
+        color_negative = '#1f77b4'  
         
 
         # create four subplots with barchart for every topic in top_topics, if the value is 2 plot the Valence score, else use zero
@@ -238,7 +242,7 @@ def create_diverging_bar_chart(data: pd.DataFrame, topics_columns: list, output_
             # change y-axis values to represent original MDBF values
             ax.set_yticks([-3, -2, -1, 0, 1, 2, 3])
             ax.set_yticklabels(['1', '2', '3', '4', '5', '6', '7'])
-            ax.set_xlabel('Datum', fontsize=12)
+            ax.set_xlabel('Wochentag', fontsize=12)
             ax.set_ylabel('Stimmung', fontsize=12)
             ax.tick_params(axis='x', labelsize=10)
             ax.spines['top'].set_visible(False)
@@ -246,7 +250,9 @@ def create_diverging_bar_chart(data: pd.DataFrame, topics_columns: list, output_
             ax.grid(True, linestyle='--', alpha=0.6)
             days_months = subset['STARTED'].dt.strftime('%d-%m')
             ax.set_xticks(subset['STARTED'])
-            ax.set_xticklabels(days_months, rotation=45, ha='right')
+            weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
+            days = weekdays + weekdays
+            ax.set_xticklabels(days, rotation=45, ha='right')
             ax.set_title(f'{topic.split("_")[1]}', fontsize=14, fontweight='bold')
         # Create custom legend handles
         legend_handles = [
@@ -381,8 +387,8 @@ def create_visualizations(data: pd.DataFrame, topics_columns: list, output_dir: 
     # Ensure the output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
-    #plot_pie_charts(data, topics_columns, output_dir)
+    plot_pie_charts(data, topics_columns, output_dir)
     plot_line_graphs(data, output_dir)
-    #create_heatmap(data, output_dir)
-    #create_diverging_bar_chart(data, topics_columns, output_dir)
+    create_heatmap(data, output_dir)
+    create_diverging_bar_chart(data, topics_columns, output_dir)
     #plot_forcegraph(data, topics_columns, output_dir)
