@@ -76,29 +76,57 @@ def plot_line_graphs(data: pd.DataFrame, output_dir: str):
         if subset.shape[0] <= 1:
             continue
     
-        # create line graph 
-        fig2, ax2 = plt.subplots(figsize=(9, 6), facecolor='white')
-        ax2.plot(subset['STARTED'], subset['MDBF_Valence_Score'], marker='o', label='Gut-Schlechte\nStimmung', color='#005C6A', linewidth=2, markersize=8, alpha=0.8) # -2 to generate zero centering
-        ax2.plot(subset['STARTED'], subset['MDBF_Arousal_Score'], marker='o', label='Wachheit-Müdigkeit', color='#608E63', linewidth=2, markersize=8, alpha=0.8)
-        ax2.plot(subset['STARTED'], subset['MDBF_Calmness_Score'], marker='o', label='Ruhe-Unruhe', color='#3D7E6A', linewidth=2, markersize=8, alpha=0.8)
-        ax2.plot(subset['STARTED'], subset['PSS4_Score'], marker='o', label='Stresslevel', color='#8A9A5B', linewidth=2, markersize=8, alpha=0.8)
-        ax2.set_title(f'Befindlichkeit und Stresslevel für ID {unique_id}', fontsize=18, fontweight='bold')
-        ax2.set_xlabel('Datum', fontsize=18)
-        ax2.set_ylabel('Level', fontsize=18)
-        ax2.tick_params(axis='x', labelsize=16)
-        ax2.tick_params(axis='y', labelsize=16)
-        ax2.legend(fontsize=16, loc='center left', bbox_to_anchor=(1, 0.5))
-        ax2.grid(True, linestyle='--', alpha=0.6)
-        ax2.spines['top'].set_visible(False)
-        ax2.spines['right'].set_visible(False)
-   
-
+        # Create 2x2 subplots
+        fig2, axes = plt.subplots(2, 2, figsize=(12, 10), facecolor='white')
+        
+        # Plot each score in a separate subplot
+        axes[0, 0].plot(subset['STARTED'], subset['MDBF_Valence_Score'], marker='o', color='#005C6A', linewidth=2, markersize=8, alpha=0.8)
+        axes[0, 0].axhline(4, color='black', linewidth=1)
+        axes[0, 0].set_title('Gut-Schlechte Stimmung', fontsize=14)
+        axes[0, 0].set_xlabel('Wochentag', fontsize=12)
+        axes[0, 0].set_ylabel('Level', fontsize=12)
+        axes[0, 0].set_ylim(1, 7)
+        axes[0, 0].spines['bottom'].set_visible(False)
+        axes[0, 0].grid(True, linestyle='--', alpha=0.6)
+        
+        axes[0, 1].plot(subset['STARTED'], subset['MDBF_Arousal_Score'], marker='o', color='#608E63', linewidth=2, markersize=8, alpha=0.8)
+        axes[0, 1].axhline(4, color='black', linewidth=1)
+        axes[0, 1].set_title('Wachheit-Müdigkeit', fontsize=14)
+        axes[0, 1].set_xlabel('Wochentag', fontsize=12)
+        axes[0, 1].set_ylabel('Level', fontsize=12)
+        axes[0, 1].set_ylim(1, 7)
+        axes[0, 1].spines['bottom'].set_visible(False)
+        axes[0, 1].grid(True, linestyle='--', alpha=0.6)
+        
+        axes[1, 0].plot(subset['STARTED'], subset['MDBF_Calmness_Score'], marker='o', color='#3D7E6A', linewidth=2, markersize=8, alpha=0.8)
+        axes[1, 0].axhline(4, color='black', linewidth=1)
+        axes[1, 0].set_title('Ruhe-Unruhe', fontsize=14)
+        axes[1, 0].set_xlabel('Wochentag', fontsize=12)
+        axes[1, 0].set_ylabel('Level', fontsize=12)
+        axes[1, 0].set_ylim(1, 7)
+        axes[1, 0].spines['bottom'].set_visible(False)
+        axes[1, 0].grid(True, linestyle='--', alpha=0.6)
+        
+        axes[1, 1].plot(subset['STARTED'], subset['PSS4_Score'], marker='o', color='#8A9A5B', linewidth=2, markersize=8, alpha=0.8)
+        axes[1, 1].set_title('Stresslevel', fontsize=14)
+        axes[1, 1].set_xlabel('Wochentag', fontsize=12)
+        axes[1, 1].set_ylabel('Level', fontsize=12)
+        axes[1, 1].set_ylim(0, 16) 
+        axes[1, 1].grid(True, linestyle='--', alpha=0.6)
+        
         # Customize x-axis labels to show only the day
-        days_months = subset['STARTED'].dt.strftime('%d-%m')
-        ax2.set_xticks(subset['STARTED'])
-        ax2.set_xticklabels(days_months, rotation=45, ha='right')
-
-        plt.tight_layout(pad=3.0)
+        # Adjust for all subplots
+        weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
+        days = weekdays + weekdays
+        
+        for ax in axes.flat:
+            ax.set_xticks(subset['STARTED'])
+            ax.set_xticklabels(days, rotation=45, ha='right')
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+        
+        fig2.suptitle(f'Verlauf der Befindlichkeit und des Stresslevel', fontsize=18, fontweight='bold')
+        plt.tight_layout(pad=3.0, rect=[0, 0, 1, 0.96]) 
         
         # Save the line graph
         file_path = os.path.join(output_dir, f'line_graph_{unique_id}.png')
@@ -139,7 +167,7 @@ def create_heatmap(data: pd.DataFrame, output_dir: str):
         sns.heatmap(pivot_data.T, cmap='RdYlGn', cbar_kws={'label': 'Wert'}, annot=True, fmt=".1f")
 
         # Set the title and labels
-        #plt.title(f'Befindlichkeitswerte', fontsize=18)
+        plt.title(f'Ausprägung der Befindlichkeitswerte', fontsize=18)
         plt.xlabel('Wochentag', fontsize=14)
         plt.ylabel('Befindlichkeitswerte', fontsize=14)
         #days_months = subset['STARTED'].dt.strftime('%d-%m')
@@ -354,7 +382,7 @@ def create_visualizations(data: pd.DataFrame, topics_columns: list, output_dir: 
     os.makedirs(output_dir, exist_ok=True)
 
     #plot_pie_charts(data, topics_columns, output_dir)
-    #plot_line_graphs(data, output_dir)
-    create_heatmap(data, output_dir)
+    plot_line_graphs(data, output_dir)
+    #create_heatmap(data, output_dir)
     #create_diverging_bar_chart(data, topics_columns, output_dir)
     #plot_forcegraph(data, topics_columns, output_dir)
