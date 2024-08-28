@@ -139,14 +139,24 @@ def create_heatmap(data: pd.DataFrame, output_dir: str):
         sns.heatmap(pivot_data.T, cmap='RdYlGn', cbar_kws={'label': 'Wert'}, annot=True, fmt=".1f")
 
         # Set the title and labels
-        plt.title(f'Befindlichkeit für ID {unique_id}', fontsize=18)
-        plt.xlabel('Datum', fontsize=14)
+        #plt.title(f'Befindlichkeitswerte', fontsize=18)
+        plt.xlabel('Wochentag', fontsize=14)
         plt.ylabel('Befindlichkeitswerte', fontsize=14)
-        days_months = subset['STARTED'].dt.strftime('%d-%m')
-        plt.xticks(ticks=range(len(days_months)), labels=days_months, rotation=45, ha='right')
-        y_ticks = ['Gute-Schlechte\nStimmung', 'Wachheit-Müdigkeit', 'Ruhe-Unruhe']
-        plt.yticks(ticks=range(len(y_ticks)), labels=y_ticks, rotation=0)
+        #days_months = subset['STARTED'].dt.strftime('%d-%m')
+        weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
+        days = weekdays + weekdays 
+        midpoints_x = [i - 0.5 for i in range(1, len(days) + 1)]
+        plt.xticks(ticks=midpoints_x, labels=days, rotation=45, ha='right')
+        y_ticks = ['Gute Stimmung -\nSchlechte Stimmung', 'Wachheit -\nMüdigkeit', 'Ruhe -\nUnruhe']
+        
+        # Calculate the midpoints of each row
+        midpoints_y = [i - 0.5 for i in range(1, len(y_ticks) + 1)]
+        plt.yticks(ticks= midpoints_y, labels=y_ticks, rotation=0)
 
+        # Add text next to the color bar to explain the extremas
+        cbar = plt.gcf().axes[-1]  # Get the color bar axis
+        cbar.text(2.8, 0.04, 'Schlecht Stimmung\nMüdigkeit\nUnruhe', ha='left', va='center', transform=cbar.transAxes, fontsize=12)
+        cbar.text(2.8, 0.96, 'Gute Stimmung\nWachheit\nUnruhe', ha='left', va='center', transform=cbar.transAxes, fontsize=12)
 
         plt.tight_layout()
 
@@ -345,6 +355,6 @@ def create_visualizations(data: pd.DataFrame, topics_columns: list, output_dir: 
 
     #plot_pie_charts(data, topics_columns, output_dir)
     #plot_line_graphs(data, output_dir)
-    #create_heatmap(data, output_dir)
-    create_diverging_bar_chart(data, topics_columns, output_dir)
+    create_heatmap(data, output_dir)
+    #create_diverging_bar_chart(data, topics_columns, output_dir)
     #plot_forcegraph(data, topics_columns, output_dir)
