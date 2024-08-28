@@ -192,7 +192,13 @@ def create_diverging_bar_chart(data: pd.DataFrame, topics_columns: list, output_
             col = i % 2
             ax = axs[row, col]
             colors = [color_positive if value == 2 else color_negative for value in subset[topic]]
-            ax.bar(subset['STARTED'], subset['MDBF_Valence_Score'] , color=colors, edgecolor='black')
+            centered_values = subset['MDBF_Valence_Score'] - 4 # MDBF can range from 1 to 7, so center around 4
+            ax.bar(subset['STARTED'], centered_values , color=colors, edgecolor='black')
+            ax.axhline(0, color='black', linewidth=1)
+            ax.set_ylim(-4, 4)
+            # change y-axis values to represent original MDBF values
+            ax.set_yticks([-3, -2, -1, 0, 1, 2, 3])
+            ax.set_yticklabels(['1', '2', '3', '4', '5', '6', '7'])
             ax.set_xlabel('Datum', fontsize=12)
             ax.set_ylabel('Stimmung', fontsize=12)
             ax.tick_params(axis='x', labelsize=10)
@@ -332,5 +338,5 @@ def create_visualizations(data: pd.DataFrame, topics_columns: list, output_dir: 
     #plot_pie_charts(data, topics_columns, output_dir)
     #plot_line_graphs(data, output_dir)
     #create_heatmap(data, output_dir)
-    #create_diverging_bar_chart(data, topics_columns, output_dir)
-    plot_forcegraph(data, topics_columns, output_dir)
+    create_diverging_bar_chart(data, topics_columns, output_dir)
+    #plot_forcegraph(data, topics_columns, output_dir)
