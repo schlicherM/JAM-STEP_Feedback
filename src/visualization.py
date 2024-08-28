@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import seaborn as sns
 import networkx as nx
 
@@ -186,7 +187,7 @@ def create_diverging_bar_chart(data: pd.DataFrame, topics_columns: list, output_
 
         # create four subplots with barchart for every topic in top_topics, if the value is 2 plot the Valence score, else use zero
         fig, axs = plt.subplots(2, 2, figsize=(12, 8), facecolor='white')
-        fig.suptitle(f'Gute-Schlechte Stimmung für die 4 häufigsten Topics für ID {unique_id}', fontsize=18, fontweight='bold')
+        fig.suptitle(f'Gute-Schlechte Stimmung für die 4 häufigsten Topics', fontsize=18, fontweight='bold')
         for i, topic in enumerate(top_topics):
             row = i // 2
             col = i % 2
@@ -195,7 +196,7 @@ def create_diverging_bar_chart(data: pd.DataFrame, topics_columns: list, output_
             centered_values = subset['MDBF_Valence_Score'] - 4 # MDBF can range from 1 to 7, so center around 4
             ax.bar(subset['STARTED'], centered_values , color=colors, edgecolor='black')
             ax.axhline(0, color='black', linewidth=1)
-            ax.set_ylim(-4, 4)
+            ax.set_ylim(-3, 3)
             # change y-axis values to represent original MDBF values
             ax.set_yticks([-3, -2, -1, 0, 1, 2, 3])
             ax.set_yticklabels(['1', '2', '3', '4', '5', '6', '7'])
@@ -209,7 +210,14 @@ def create_diverging_bar_chart(data: pd.DataFrame, topics_columns: list, output_
             ax.set_xticks(subset['STARTED'])
             ax.set_xticklabels(days_months, rotation=45, ha='right')
             ax.set_title(f'{topic.split("_")[1]}', fontsize=14, fontweight='bold')
-        fig.legend(['Topic erwähnt', 'Topic nicht erwähnt'], fontsize=12)
+        # Create custom legend handles
+        legend_handles = [
+            mpatches.Patch(color=color_positive, label='Erwähnt'),
+            mpatches.Patch(color=color_negative, label='Nicht erwähnt')
+        ]
+
+        # Add the custom legend to the plot
+        fig.legend(handles=legend_handles, fontsize=12)
         plt.tight_layout(pad=3.0)
         plt.subplots_adjust(top=0.9)
 
