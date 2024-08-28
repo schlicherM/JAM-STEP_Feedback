@@ -25,17 +25,17 @@ def preprocess_data(data: pd.DataFrame) -> pd.DataFrame:
         'SC01_01': 'SSCCS_Giveup', #  1 (Stimme überhaupt nicht zu) - 7 (Stimme völlig zu), -9 not answered
         'SC01_02': 'SSCCS_Resist',  # 1 (Stimme überhaupt nicht zu) - 7 (Stimme völlig zu), -9 not answered
         'TP01': 'Topics_None', # negative or number selected
-        'TP01_01': 'Topics_Movement', # 1 (not selected) or 2 (selected)
-        'TP01_02': 'Topics_Family', # 1 or 2
-        'TP01_03': 'Topics_Food', # 1 or 2
-        'TP01_04': 'Topics_Friends', # 1 or 2
-        'TP01_05': 'Topics_Religion', # 1 or 2
-        'TP01_06': 'Topics_Health', # 1 or 2
-        'TP01_07': 'Topics_Love', # 1 or 2
-        'TP01_08': 'Topics_Recreation', # 1 or 2
-        'TP01_09': 'Topics_School', # 1 or 2
-        'TP01_10': 'Topcis_Sleep', # 1 or 2
-        'TP01_11': 'Topics_Work' # 1 or 2
+        'TP01_01': 'Topics_Bewegung', # 1 (not selected) or 2 (selected)
+        'TP01_02': 'Topics_Familie', # 1 or 2
+        'TP01_03': 'Topics_Essen', # 1 or 2
+        'TP01_04': 'Topics_Freunde', # 1 or 2
+        'TP01_05': 'Topics_Religion/Spiritualität', # 1 or 2
+        'TP01_06': 'Topics_Gesundheit', # 1 or 2
+        'TP01_07': 'Topics_Liebe', # 1 or 2
+        'TP01_08': 'Topics_Freizeit', # 1 or 2
+        'TP01_09': 'Topics_Universität', # 1 or 2
+        'TP01_10': 'Topcis_Schlaf', # 1 or 2
+        'TP01_11': 'Topics_Arbeit' # 1 or 2
     }
 
     # Rename columns
